@@ -1,26 +1,21 @@
 # Problem 2 Knight movement backtracking solver
 from typing import List
 
+# Global vars for counting the number of visited node and promising nodes checked
 nr_promising = 0
 nr_visited = 0
-
-
-
-def print_board(list_y: List[List[int]]) -> None:
-	for list_x in list_y:
-		print(list_x)
 
 
 def promising(x: int, y: int, board: List[List[int]], size: int) -> bool:
 	global nr_promising
 	nr_promising += 1
-	if 0 <= x < size and 0 <= y < size and board[x][y] == -1:  # To make sure we are not moving outside the board
-		# if board[x][y] == -1:  			 # Checks if cell is visited
-		return True
+	if 0 <= x < size and 0 <= y < size:  # To make sure we are not moving outside the board
+		if board[x][y] == -1:  			 # Checks if cell is visited
+			return True
 	return False
 
 
-def knights(board: List[List[int]], x: int, y: int, size: int, step: int = 1):
+def knights(board: List[List[int]], x: int, y: int, size: int, step: int = 1) -> bool:
 	global nr_visited
 	nr_visited += 1
 	# When nr of steps is size * size all cells should be visited
@@ -53,12 +48,14 @@ def main(n: int):
 	start_x = 0
 	start_y = 0
 
+	#
 	board[start_x][start_y] = 0
 
 	if knights(board, start_x, start_y, size=n):
-		print_board(board)
+		for x in board:
+			print(x)
 		print(f"number of promising nodes checked: {nr_promising}")
-		print(f"number of promesing nodes checked: {nr_visited}")
+		print(f"number of visited nodes checked: {nr_visited}")
 
 
 if __name__ == "__main__":
