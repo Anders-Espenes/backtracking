@@ -36,32 +36,74 @@ Output: 00 01 11 10         Output: 000 001 011 010 110 111 101 100
 
 '''
 
+''' 
+Iterative method
+Each bit is inverted if the next higher bit of the input value is set to one
+'''
 
-from functools import reduce
-from operator import concat
+
+from typing import Counter
 
 
-def safe(res, n ,num):
-    if (n == 0):
-        res.append(num[0])
+def makeroot(bits):
+    return [tuple([0 for i in range(bits)])]
+
+# Performs an XOR operaton on two lists, lists must be same length
+def xor(L1, L2):
+    L3 = []
+    for i, j in zip(L1, L2):
+        if(i != j):
+            L3.append(1)
+    return L3
+
+
+# Check if the distance between each pattern is == 1
+def distance(code):
+    for i, j in zip(*[iter(code)]*2): # Loops two items at once
+        if(len(xor(i, j)) != 1): # If distance is not 1 between two patterns next to each other
+            return False # Distance was not 1
+    return True
+
+# Check if every pattern is unique
+def unique(code):
+  temp = Counter(map(tuple, code)) # Counts the occurence of item in list of lists
+  return next((True for v in temp.items() if v> 1), False) # If any item have more than 1 occurence return True, else return false
+
+
+# Reject If: somthing is not uniqe, distance between 
+def reject(code):
+    if(unique(code) and  # Set must contain uniqe elements, if true, two elements in code where the same and where removed
+    distance(code)): # Check if distance between patterns == 1
+        return True
+    return False
+
+# TODO:
+# Check if all patterns have been found
+def accept(codelen, code):
+    if(len(code) != codelen):
+        return False
+    return distance(code[0], code[-1]) == 1
+# TODO:
+def output(code):
+    print("code: ")
+    for codepoint in code:
+        for codeelement in codepoint:
+            codechar = "1" if codeelement else "0"
+            print(codechar),
+        print
+
+def backtrack(codelen, code):
+    if reject(code):
+       return
+    if accept(codelen, code):
+        output(code)
         return
+    for extension in code:
+        backtrack(codelen, extension)
 
-    # ignore the bit.
-    safe(res, n - 1, num)
-
-    # invert the bit.
-    num[0] = num[0] ^ (1 << (n - 1))
-    safe(res, n - 1, num)
-
-def generate_patterns(n):
-    # Find a next 
-    res = [] # Empty list to contain the generated patterns
-    num = [0]
-    safe(res, n, num)
-    return res
-
-
-def reflective_greycode_generation(n, L1=[[0],[1]]):
+#TODO: BUG: With N=4 generates [0,1,0,0] then [1,1,0,1] should be [1,1,0,0]
+# Uses a reflect and prefix method to generate grey code
+def reflective_greycode_generation(n, L1=[[]]):
     if(len(L1[0]) < n):  # Stop when we have reached the desired number of bits
         L2 = L1.copy()  # Copy and reverse
         L2.reverse()    
@@ -80,12 +122,21 @@ def chunk_list(list, n):
 
 
 if __name__ == '__main__':
-    n = 3
+    n = 4
 
-    test = chunk_list([0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0], 3)
-    temp = reflective_greycode_generation(n)
-    print_list(temp)
-    if(temp == test):
-     print("Success")
-    else: 
-     print("Failure")
+    #test = chunk_list([0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0], 3)
+    #temp = reflective_greycode_generation(n)
+    #print_list(temp)
+    #if(temp == test):
+    # print("Reflective Success")
+    #else: 
+    # print("Reflective Failure")
+
+   #temp = backtrack(n,[[0],[1]])
+   #print_list(temp)
+   #if(temp == test):
+   #    print("Backtracking Success")
+   #else:
+   #    print("Backtracking Failure")
+    code = [[0, 1, 0, 0], [1, 1, 0, 0]]
+    print(unique(code))
