@@ -61,25 +61,32 @@ def generate_patterns(n):
     return res
 
 
-def reflective_greycode_generation(n, L1=[0,1]):
+def reflective_greycode_generation(n, L1=[[0],[1]]):
     # List of grey bits containting n-1 number bits
+    c = 1 # We start at 1 bits
     L2 = L1.copy()
     L2.reverse()
-    L1 = [[0, v] for elt in L1 for v in elt]
-    L2 = [[1, v] for elt in L2 for v in elt]
-    L3 = L1 + L2
-    if(n > 2):
-        L3 = reflective_greycode_generation(n-1, L3)
+   # L1 = chunk_list(L1, n)
+    L1 = [[0] + elt for elt in L1] # Add prefix 0 to original code
+    L2 = [[1] + elt for elt in L2] # Add prefix 1 to orignal code reversed
+    L3 = L1 + L2 # Concatinate to create new code with additional bit
+    if(c < n - 1): # Stop when we have reached the desired number of bits
+        L3 = reflective_greycode_generation(c+1, L3) # Add new bit
     return L3
 
 def print_list(list, n):
     print([list[i:i + n] for i in range(0, len(list), n)])
+    
+
+def chunk_list(list, n):
+    return([list[i:i + n] for i in range(0, len(list), n)])
+
 
 
 if __name__ == '__main__':
     n = 3
 
-    test = [0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0]
+    test = chunk_list([0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0], 3)
     temp = reflective_greycode_generation(n)
     print_list(temp, n)
     if(temp == test):
