@@ -26,7 +26,7 @@ class KnightsBacktracking:
 			self._print_result(board)
 			return True
 
-		# Loops though all the x, y pos a knight can do from a cell
+		# Loops though all the x, y pos a knight can legally do
 		for (x_move, y_move) in zip([2, 1, -1, -2, -2, -1, 1, 2], [1, 2, 2, 1, -1, -2, -2, -1]):
 			next_x = x + x_move
 			next_y = y + y_move
@@ -80,36 +80,37 @@ class KnightsHeuristic:
 
 	def count_neighbors(self, board: list[list[int]], x: int, y: int):
 		count = 1
-		for i in range(0, self.n):
-			next_x = x + self.x_moves[i]
-			next_y = y + self.y_moves[i]
+		for (x_move, y_move) in zip(self.x_moves, self.y_moves):
+			next_x = x + x_move
+			next_y = y + y_move
 			if self.promising(board, next_x, next_y):
 				count += 1
 
-		# This is do too the last move wil have
 		return count
 
 	def knights_heuristic(self, board: List[List[int]], x: int, y: int, step: int = 1) -> bool:
 		self.nr_visited += 1
 
-
 		board[x][y] = step
 
+		# When the last step is placed we know there is no reason to check neighbors, so we return early
 		if step == self.size ** 2:
 			self._print_result(board)
 			return True
 
 		priority_queue = []
-		for i in range(0, self.n):
-			# Starts from a random offset
-			next_x = x + self.x_moves[i]
-			next_y = y + self.y_moves[i]
+		# Loops though all the x, y pos a knight can legally do
+		for (x_move, y_move) in zip(self.x_moves, self.y_moves):
+			next_x = x + x_move
+			next_y = y + y_move
 			if self.promising(board, next_x, next_y):
+				# count the nr of promising nodes from this pos
 				count = self.count_neighbors(board, next_x, next_y)
 				if count > 0:
 					heappush(priority_queue, (count, next_x, next_y))
 
 		if len(priority_queue) > 0:
+			# pops the first element in pq and uses that pos for next move
 			(count, next_x, next_y) = heappop(priority_queue)
 			if self.knights_heuristic(board, next_x, next_y, step + 1):
 				return True
@@ -126,7 +127,7 @@ def start_knights_tour_heuristic(n: int):
 	# Creates 2d list of 0's with the size n*n
 	board = [[-1 for x in range(n)] for y in range(n)]
 
-	random.seed(4365364)
+	random.seed(234234)
 
 	# Defines a starting positions and marks it as visited with 0
 	start_x = random.randrange(0, n)
@@ -138,6 +139,6 @@ def start_knights_tour_heuristic(n: int):
 
 
 if __name__ == "__main__":
-	# start_knights_tour_backtracking(5)
-	start_knights_tour_heuristic(5)
+	# start_knights_tour_backtracking(8)
+	start_knights_tour_heuristic(8)
 
