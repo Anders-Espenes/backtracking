@@ -49,6 +49,7 @@ def makeroot(bits):
     return [tuple([0 for i in range(bits)])]
 
 # Performs an XOR operaton on two lists, lists must be same length
+# * does not append the 0 to the returned list, as we only want the 1s from the XOR operation
 def xor(L1, L2):
     L3 = []
     for i, j in zip(L1, L2):
@@ -66,13 +67,13 @@ def distance(code):
 
 # Check if every pattern is unique
 def unique(code):
-  temp = Counter(map(tuple, code)) # Counts the occurence of item in list of lists
-  return next((True for v in temp.items() if v> 1), False) # If any item have more than 1 occurence return True, else return false
+  temp = Counter(map(tuple, code)) # Counts the occurence of item in list of lists, creates a tuple, item is a pattern, value is nr of occurences
+  return next((False for v in temp.values() if v != 1), True) # If any item have more than 1 occurence return True, else return false
 
 
-# Reject If: somthing is not uniqe, distance between 
+# Reject If: somthing is not uniqe or distance between adjacent patterns is greater than 1
 def reject(code):
-    if(unique(code) and  # Set must contain uniqe elements, if true, two elements in code where the same and where removed
+    if(unique(code) and  # True if no pattern have occurence greater than 1
     distance(code)): # Check if distance between patterns == 1
         return True
     return False
@@ -80,9 +81,9 @@ def reject(code):
 # TODO:
 # Check if all patterns have been found
 def accept(codelen, code):
-    if(len(code) != codelen):
-        return False
-    return distance(code[0], code[-1]) == 1
+ if (len(code[-1]) < codelen):
+     pass
+
 # TODO:
 def output(code):
     print("code: ")
@@ -93,18 +94,19 @@ def output(code):
         print
 
 def backtrack(codelen, code):
-    if reject(code):
+    if not reject(code): # If code is not
        return
     if accept(codelen, code):
-        output(code)
-        return
-    for extension in code:
-        backtrack(codelen, extension)
+   #     output(code)
+        return code
+   # for extension in code:
+   #     backtrack(codelen, extension)
+    return "No solution found"
 
 #TODO: BUG: With N=4 generates [0,1,0,0] then [1,1,0,1] should be [1,1,0,0]
 # Uses a reflect and prefix method to generate grey code
 def reflective_greycode_generation(n, L1=[[]]):
-    if(len(L1[0]) < n):  # Stop when we have reached the desired number of bits
+    if(len(L1[-1]) < n):  # Stop when we have reached the desired number of bits
         L2 = L1.copy()  # Copy and reverse
         L2.reverse()    
         L1 = [[0] + elt for elt in L1] # Add prefix 0 to original code
@@ -122,15 +124,16 @@ def chunk_list(list, n):
 
 
 if __name__ == '__main__':
-    n = 4
+    n = 5
 
-    #test = chunk_list([0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0], 3)
-    #temp = reflective_greycode_generation(n)
-    #print_list(temp)
-    #if(temp == test):
-    # print("Reflective Success")
-    #else: 
-    # print("Reflective Failure")
+    test = chunk_list([0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0], 3)
+    test2 = chunk_list([0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,1,1,0,0,1,1,1,0,1,0,1,0,1,0,0,1,1,0,0,1,1,0,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,0,0,1,1,0,0,0], 4)
+    temp = reflective_greycode_generation(n)
+    print_list(temp)
+    if(distance(temp) and unique(temp)):
+     print("Reflective Success")
+    else: 
+     print("Reflective Failure")
 
    #temp = backtrack(n,[[0],[1]])
    #print_list(temp)
@@ -138,5 +141,5 @@ if __name__ == '__main__':
    #    print("Backtracking Success")
    #else:
    #    print("Backtracking Failure")
-    code = [[0, 1, 0, 0], [1, 1, 0, 0]]
-    print(unique(code))
+   # code = [[0, 1, 0, 0], [1, 1, 0, 0]]
+    #print(backtrack(2, code))
