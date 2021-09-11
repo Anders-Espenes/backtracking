@@ -2,6 +2,8 @@
 from typing import Counter
 from copy import deepcopy
 
+visited = 0
+promisingCounter = 0
 
 # Performs an XOR operaton on two lists, lists must be same length
 # * does not append the 0 to the returned list, as we only want the 1s from the XOR operation
@@ -63,10 +65,19 @@ def promising(pattern):
 
 # Finishes when all patterns are unique and one bit shift difference with adjacent patterns
 def backtrack(codelen, code):
+    # Counter variables
+    global visited
+    global promisingCounter
+
+    promisingCounter += 1 # We have checked a new node
+
     if not reject(code): # Check if pattern fullfilles the requirements for grey code
         return
+    visited += 1 # We have visited a new node
     if accept(codelen, code): # Check if finished
         print_list(code)
+        print("Promising nodes visited: ", promisingCounter)
+        print("Visited nodes: ", visited)
         exit() # TODO: Find a better solution to this, is not good coding
     for extension in extensions(code):
         if backtrack(codelen, extension):
