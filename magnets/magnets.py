@@ -66,7 +66,7 @@ def is_safe(board, row, col, ch, top, left, bottom, right):
 
 
 # Function to validate the configuration of the board
-def validate_configuration(board, top, left, bottom, right):
+def validate_configuration(board, top, left, bottom, right, solutions):
     # check top
     for i in range(N):
         if top[i] != -1 and count_ch_columns(board, '+', i) != top[i]:
@@ -87,17 +87,29 @@ def validate_configuration(board, top, left, bottom, right):
         if right[j] != -1 and count_ch_row(board, '-', j) != right[j]:
             return False
 
+    for solution in solutions:
+        count = 0
+        for i in range(M):
+            for j in range(N):
+                if solution[i][j] == board[i][j]:
+                    count += 1
+                    if count == M*N:
+                        return False
+
+    solutions.append(board)
+    print_solution(board)
     return True
 
 
 # Function to solve
-def solve_puzzle(board, row, col, top, left, bottom, right, rules):
+def solve_puzzle(board, row, col, top, left, bottom, right, rules, solutions):
     global visited
     global promising
     visited += 1
     # checks if the last cell has been reached and try to validate
     if row >= M - 1 and col >= N - 1:
-        return validate_configuration(board, top, left, bottom, right)
+        validate_configuration(board, top, left, bottom, right, solutions)
+        return
 
     # Checks if its the end of the row and jumps to the next one
     if col >= N:
@@ -108,7 +120,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules):
     #
     if rules[row][col] == 'R' or rules[row][col] == 'B':
 
-        if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules):
+        if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
             return True
 
     # if a horizontal slot contains `L` and `R`
@@ -121,7 +133,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules):
             board[row][col] = '+'
             board[row][col + 1] = '-'
 
-            if solve_puzzle(board, row, col + 2, top, left, bottom, right, rules):
+            if solve_puzzle(board, row, col + 2, top, left, bottom, right, rules, solutions):
                 return True
 
             # backtrack if it doesnt reach a solution
@@ -135,7 +147,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules):
             board[row][col] = '-'
             board[row][col + 1] = '+'
 
-            if solve_puzzle(board, row, col + 2, top, left, bottom, right, rules):
+            if solve_puzzle(board, row, col + 2, top, left, bottom, right, rules, solutions):
                 return True
 
             # backtrack if it doesnt reach a solution
@@ -152,7 +164,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules):
             board[row][col] = '+'
             board[row + 1][col] = '-'
 
-            if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules):
+            if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
                 return True
 
             # backtrack if it doesnt reach a solution
@@ -166,7 +178,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules):
             board[row][col] = '-'
             board[row + 1][col] = '+'
 
-            if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules):
+            if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
                 return True
 
             # backtrack if it doesnt reach a solution
@@ -174,7 +186,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules):
             board[row + 1][col] = 'X'
 
     # no solutions found for this cell, move on
-    if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules):
+    if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
         return True
 
     # return if there are no possible solutions
@@ -184,14 +196,12 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules):
 def magnet_puzzle(top, left, bottom, right, rules):
     # initialize all cells with `X`
     board = [['X' for x in range(N)] for y in range(M)]
+    solutions = []
 
     # start at (0, 0)
-    if not solve_puzzle(board, 0, 0, top, left, bottom, right, rules):
-        print("Solution does not exist")
+    if not solve_puzzle(board, 0, 0, top, left, bottom, right, rules, solutions):
+        print("No more possible solutions")
         return
-
-    # print solution
-    print_solution(board)
 
 
 visited = 0
