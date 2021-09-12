@@ -1,16 +1,23 @@
-# Problem 3 Magnets placement solver
-# Print solution
-def print_solution(board):
-    print(f'Visited {visited}')
-    print(f'Promising {promising}')
-    for i in range(M):
-        for j in range(N):
-            print(board[i][j], end=' ')
-        print()
+# Write Python3 code here
+# Defines the rules of the board
+top = [1, -1, -1, 2, 1, -1]
+bottom = [2, -1, -1, 2, -1, 3]
+left = [2, 3, -1, -1, -1]
+right = [-1, -1, -1, 1, -1]
+
+board = [["L", "R", "L", "R", "T", "T"],
+         ["L", "R", "L", "R", "B", "B"],
+         ["T", "T", "T", "T", "L", "R"],
+         ["B", "B", "B", "B", "T", "T"],
+         ["L", "R", "L", "R", "B", "B"]]
+
+(M, N) = (len(board), len(board[0]))
+visited = 0
+promising = 0
 
 
 # Counts total number of characters in the column
-def count_ch_columns(board, ch, j):
+def count_character_columns(board, ch, j):
     count = 0
     for i in range(M):
         if board[i][j] == ch:
@@ -19,7 +26,7 @@ def count_ch_columns(board, ch, j):
 
 
 # Counts total number of characters in the row
-def count_ch_row(board, ch, i):
+def count_character_row(board, ch, i):
     count = 0
     for j in range(N):
         if board[i][j] == ch:
@@ -27,197 +34,152 @@ def count_ch_row(board, ch, i):
     return count
 
 
-# Check if its safe to put the character in the cell
-def is_safe(board, row, col, ch, top, left, bottom, right):
-    # checks for adjacent cells
-    if ((row - 1 >= 0 and board[row - 1][col] == ch) or
-            (col + 1 < N and board[row][col + 1] == ch) or
-            (row + 1 < M and board[row + 1][col] == ch) or
-            (col - 1 >= 0 and board[row][col - 1] == ch)):
+# Checks that there are no minuses of plusses in the spaces next to the magnet that can be placed.
+def horizontal_check(board, row, col, pat):
+    if col - 1 >= 0 and board[row][col - 1] == pat[0]:
         return False
-
-    rowCount = count_ch_row(board, ch, row)
-
-    colCount = count_ch_columns(board, ch, col)
-
-    # if character is +, check `top[]` and `left[]`
-    if ch == '+':
-
-        # check top
-        if top[col] != -1 and colCount >= top[col]:
-            return False
-
-        # check left
-        if left[row] != -1 and rowCount >= left[row]:
-            return False
-
-    # if the given character is `-`, check `bottom[]` and `right[]`
-    if ch == '-':
-
-        # check bottom
-        if bottom[col] != -1 and colCount >= bottom[col]:
-            return False
-
-        # check left
-        if right[row] != -1 and rowCount >= right[row]:
-            return False
+    elif row - 1 >= 0 and board[row - 1][col] == pat[0]:
+        return False
+    elif row - 1 >= 0 and board[row - 1][col + 1] == pat[1]:
+        return False
+    elif col + 2 < len(board[0]) and board[row][col + 2] == pat[1]:
+        return False
 
     return True
 
 
-# Function to validate the configuration of the board
-def validate_configuration(board, top, left, bottom, right, solutions):
+# Checks that there are no minuses of plusses in the spaces next to the magnet that can be placed.
+def vertical_check(board, row, col, pat):
+    if col - 1 >= 0 and board[row][col - 1] == pat[0]:
+        return False
+    elif row - 1 >= 0 and board[row - 1][col] == pat[0]:
+        return False
+    elif col + 1 < len(board[0]) and board[row][col + 1] == pat[0]:
+        return False
+
+    return True
+
+
+def check_rules(board):
     # check top
     for i in range(N):
-        if top[i] != -1 and count_ch_columns(board, '+', i) != top[i]:
+        if top[i] != -1 and count_character_columns(board, '+', i) != top[i]:
             return False
 
     # check left
     for j in range(M):
-        if left[j] != -1 and count_ch_row(board, '+', j) != left[j]:
+        if left[j] != -1 and count_character_row(board, '+', j) != left[j]:
             return False
 
     # check bottom
     for i in range(N):
-        if bottom[i] != -1 and count_ch_columns(board, '-', i) != bottom[i]:
+        if bottom[i] != -1 and count_character_columns(board, '-', i) != bottom[i]:
             return False
 
     # check right
     for j in range(M):
-        if right[j] != -1 and count_ch_row(board, '-', j) != right[j]:
+        if right[j] != -1 and count_character_row(board, '-', j) != right[j]:
             return False
 
-    for solution in solutions:
-        count = 0
-        for i in range(M):
-            for j in range(N):
-                if solution[i][j] == board[i][j]:
-                    count += 1
-                    if count == M*N:
-                        return False
-
-    solutions.append(board)
-    print_solution(board)
     return True
 
 
-# Function to solve
-def solve_puzzle(board, row, col, top, left, bottom, right, rules, solutions):
-    global visited
-    global promising
-    promising += 1
-    # checks if the last cell has been reached and try to validate
+def solve_magnets(board, row, col, promising, visited):
     if row >= M - 1 and col >= N - 1:
-        validate_configuration(board, top, left, bottom, right, solutions)
-        return
 
-    # Checks if its the end of the row and jumps to the next one
-    if col >= N:
-        col = 0
-        row = row + 1
+        # Check that solution is valid
+        if check_rules(board):
+            print(f'Promising: {promising}')
+            print(f'Visited: {visited}')
+            for i in range(M):
+                for j in range(N):
+                    print(board[i][j], end=' ')
+                print()
 
-    # if the current cell contains `R` or `B` recur for the next cell
-    #
-    if rules[row][col] == 'R' or rules[row][col] == 'B':
+    elif col >= N:
 
-        if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
-            return True
+        solve_magnets(board, row + 1, 0, promising, visited)
 
-    # if a horizontal slot contains `L` and `R`
-    if rules[row][col] == 'L' and rules[row][col + 1] == 'R':
+    # If not solved or invalid position
+    else:
+        # If board har value 'L' then its a horizontal piece.
+        if board[row][col] == "L":
 
-        # put (`+`, `-`) pair and recur
-        if (is_safe(board, row, col, '+', top, left, bottom, right) and
-                is_safe(board, row, col + 1, '-', top, left, bottom, right)):
             visited += 1
-            board[row][col] = '+'
-            board[row][col + 1] = '-'
+            # Check horizontal '+-' placement
+            if horizontal_check(board, row, col, "+-"):
+                board[row][col] = "+"
+                board[row][col + 1] = "-"
 
-            if solve_puzzle(board, row, col + 2, top, left, bottom, right, rules, solutions):
-                return True
+                promising += 1
+                solve_magnets(board, row, col + 2, promising, visited)
 
-            # backtrack if it doesnt reach a solution
-            board[row][col] = 'X'
-            board[row][col + 1] = 'X'
+                board[row][col] = "L"
+                board[row][col + 1] = "R"
 
-        # put (`-`, `+`) pair and recur
-        if (is_safe(board, row, col, '-', top, left, bottom, right) and
-                is_safe(board, row, col + 1, '+', top, left, bottom, right)):
+            # Check horizontal '-+' placement
+            if horizontal_check(board, row, col, "-+"):
+                board[row][col] = "-"
+                board[row][col + 1] = "+"
+
+                promising += 1
+                solve_magnets(board, row, col + 2, promising, visited)
+
+                board[row][col] = "L"
+                board[row][col + 1] = "R"
+
+            # Check horizontal 'xx' placement
+            if True or horizontal_check(board, row, col, "xx"):
+                board[row][col] = "x"
+                board[row][col + 1] = "x"
+
+                promising += 1
+                solve_magnets(board, row, col + 2, promising, visited)
+
+                board[row][col] = "L"
+                board[row][col + 1] = "R"
+
+        # If board har value 'T' then its a vertical piece.
+        elif board[row][col] == "T":
             visited += 1
-            board[row][col] = '-'
-            board[row][col + 1] = '+'
 
-            if solve_puzzle(board, row, col + 2, top, left, bottom, right, rules, solutions):
-                return True
+            # Check vertical '+-' placement
+            if vertical_check(board, row, col, "+-"):
+                board[row][col] = "+"
+                board[row + 1][col] = "-"
 
-            # backtrack if it doesnt reach a solution
-            board[row][col] = 'X'
-            board[row][col + 1] = 'X'
+                promising += 1
+                solve_magnets(board, row, col + 1, promising, visited)
 
-    # if a vertical slot contains `T` and `B`
-    if rules[row][col] == 'T' and rules[row + 1][col] == 'B':
+                board[row][col] = "T"
+                board[row + 1][col] = "B"
 
-        # put (`+`, `-`) pair and recur
-        if (is_safe(board, row, col, '+', top, left, bottom, right) and
-                is_safe(board, row + 1, col, '-', top, left, bottom, right)):
-            visited += 1
-            board[row][col] = '+'
-            board[row + 1][col] = '-'
+            # Check vertical '-+' placement
+            if vertical_check(board, row, col, "-+"):
+                board[row][col] = "-"
+                board[row + 1][col] = "+"
 
-            if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
-                return True
+                promising += 1
+                solve_magnets(board, row, col + 1, promising, visited)
 
-            # backtrack if it doesnt reach a solution
-            board[row][col] = 'X'
-            board[row + 1][col] = 'X'
+                board[row][col] = "T"
+                board[row + 1][col] = "B"
 
-        # put (`-`, `+`) pair and recur
-        if (is_safe(board, row, col, '-', top, left, bottom, right) and
-                is_safe(board, row + 1, col, '+', top, left, bottom, right)):
-            visited += 1
-            board[row][col] = '-'
-            board[row + 1][col] = '+'
+            # Check vertical 'xx' placement
 
-            if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
-                return True
+            if True or vertical_check(board, row, col, "xx"):
+                board[row][col] = "x"
+                board[row + 1][col] = "x"
 
-            # backtrack if it doesnt reach a solution
-            board[row][col] = 'X'
-            board[row + 1][col] = 'X'
+                promising += 1
+                solve_magnets(board, row, col + 1, promising, visited)
 
-    # no solutions found for this cell, move on
-    if solve_puzzle(board, row, col + 1, top, left, bottom, right, rules, solutions):
-        return True
+                board[row][col] = "T"
+                board[row + 1][col] = "B"
 
-    # return if there are no possible solutions
-    return
+        else:
+            solve_magnets(board, row, col + 1, promising, visited)
 
 
-def magnet_puzzle(top, left, bottom, right, rules):
-    # initialize all cells with `X`
-    board = [['X' for x in range(N)] for y in range(M)]
-    solutions = []
-
-    # start at (0, 0)
-    if not solve_puzzle(board, 0, 0, top, left, bottom, right, rules, solutions):
-        print("No more possible solutions")
-        return
-
-
-visited = 0
-promising = 0
-top = [ 1, -1, -1, 2, 1, -1 ]
-bottom = [ 2, -1, -1, 2, -1, 3 ]
-left = [ 2, 3, -1, -1, -1 ]
-right = [ -1, -1, -1, 1, -1 ]
-
-
-rules = [["L","R","L","R","T","T" ],
-        [ "L","R","L","R","B","B" ],
-        [ "T","T","T","T","L","R" ],
-        [ "B","B","B","B","T","T" ],
-        [ "L","R","L","R","B","B" ]]
-
-(M, N) = (len(rules), len(rules[0]))
-
-magnet_puzzle(top, left, bottom, right, rules)
+# Solve puzzle
+solve_magnets(board, 0, 0, visited, promising)
