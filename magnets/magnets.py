@@ -207,7 +207,7 @@ def magnet_puzzle(top, left, bottom, right, rules):
 visited = 0
 promising = 0
 top = [ 1, -1, -1, 2, 1, -1 ]
-bottom = [ -1, -1, -1, 2, -1, 3 ]
+bottom = [ 2, -1, -1, 2, -1, 3 ]
 left = [ 2, 3, -1, -1, -1 ]
 right = [ -1, -1, -1, 1, -1 ]
 
