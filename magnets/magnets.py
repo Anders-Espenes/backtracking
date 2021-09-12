@@ -2,7 +2,7 @@
 # Print solution
 def print_solution(board):
     print(f'Visited {visited}')
-    print(f'promising {promising}')
+    print(f'git add m {promising}')
     for i in range(M):
         for j in range(N):
             print(board[i][j], end=' ')
@@ -105,7 +105,7 @@ def validate_configuration(board, top, left, bottom, right, solutions):
 def solve_puzzle(board, row, col, top, left, bottom, right, rules, solutions):
     global visited
     global promising
-    visited += 1
+    promising += 1
     # checks if the last cell has been reached and try to validate
     if row >= M - 1 and col >= N - 1:
         validate_configuration(board, top, left, bottom, right, solutions)
@@ -129,7 +129,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules, solutions):
         # put (`+`, `-`) pair and recur
         if (is_safe(board, row, col, '+', top, left, bottom, right) and
                 is_safe(board, row, col + 1, '-', top, left, bottom, right)):
-            promising += 1
+            visited += 1
             board[row][col] = '+'
             board[row][col + 1] = '-'
 
@@ -143,7 +143,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules, solutions):
         # put (`-`, `+`) pair and recur
         if (is_safe(board, row, col, '-', top, left, bottom, right) and
                 is_safe(board, row, col + 1, '+', top, left, bottom, right)):
-            promising += 1
+            visited += 1
             board[row][col] = '-'
             board[row][col + 1] = '+'
 
@@ -160,7 +160,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules, solutions):
         # put (`+`, `-`) pair and recur
         if (is_safe(board, row, col, '+', top, left, bottom, right) and
                 is_safe(board, row + 1, col, '-', top, left, bottom, right)):
-            promising += 1
+            visited += 1
             board[row][col] = '+'
             board[row + 1][col] = '-'
 
@@ -174,7 +174,7 @@ def solve_puzzle(board, row, col, top, left, bottom, right, rules, solutions):
         # put (`-`, `+`) pair and recur
         if (is_safe(board, row, col, '-', top, left, bottom, right) and
                 is_safe(board, row + 1, col, '+', top, left, bottom, right)):
-            promising += 1
+            visited += 1
             board[row][col] = '-'
             board[row + 1][col] = '+'
 
@@ -207,7 +207,7 @@ def magnet_puzzle(top, left, bottom, right, rules):
 visited = 0
 promising = 0
 top = [ 1, -1, -1, 2, 1, -1 ]
-bottom = [ 2, -1, -1, 2, -1, 3 ]
+bottom = [ -1, -1, -1, 2, -1, 3 ]
 left = [ 2, 3, -1, -1, -1 ]
 right = [ -1, -1, -1, 1, -1 ]
 
