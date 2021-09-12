@@ -2,7 +2,7 @@
 # Print solution
 def print_solution(board):
     print(f'Visited {visited}')
-    print(f'git add m {promising}')
+    print(f'Promising {promising}')
     for i in range(M):
         for j in range(N):
             print(board[i][j], end=' ')
